@@ -1,0 +1,44 @@
+service: ec2-backup-lambda
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-south-1
+  timeout: 60
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "ec2:DescribeInstances"
+            - "ec2:CreateImage"
+            - "ec2:CreateTags"
+          Resource: "*"
+
+functions:
+  createAMIs:
+    handler: handler.createAMIs
+    events:
+      - schedule:
+          rate: cron(0/15 * * * ? *) # Run every 15 minutes
+
+plugins:
+  - serverless-offline
+
+#
+# # "org" ensures this Service is used with the correct Serverless Framework Access Key.
+# org: inxocean
+# # "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+# app: ec2-backup-lambda
+# # "service" is the name of this project. This will also be added to your AWS resource names.
+# service: ec2-backup-lambda
+#
+# provider:
+#   name: aws
+#   runtime: nodejs20.x
+#
+# functions:
+#   backup:
+#     handler: handler.backup
